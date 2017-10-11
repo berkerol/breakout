@@ -88,6 +88,7 @@ draw();
 document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
 document.addEventListener("mousemove", mouseMoveHandler);
+window.addEventListener("resize", resizeHandler);
 
 function drawStar(x_, y_, outerRadius, innerRadius, spikes) {
   let x = x_,
@@ -266,7 +267,7 @@ function intersects(x1, y1, w1, h1, x2, y2, w2, h2) {
 function die() {
   health--;
   if (health === 0) {
-    end("GAME OVER");
+    end("GAME OVER!");
   } else {
     resetBall();
   }
@@ -295,4 +296,10 @@ function keyUpHandler(e) {
 
 function mouseMoveHandler(e) {
   paddle.x = e.clientX - canvas.offsetLeft - paddle.width / 2;
+}
+
+function resizeHandler() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  paddle.y = canvas.height - paddle.height;
 }
