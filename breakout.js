@@ -32,6 +32,8 @@ function resetBall() {
   ball.dx = 0;
   ball.dy = -ball.speed;
   paddle.x = (canvas.width - paddle.width) / 2;
+  meteors = [];
+  circles = [];
 }
 
 let meteor = {
@@ -56,6 +58,12 @@ let brick = {
   marginY: 50
 };
 
+let circle = {
+  decrease: 0.05,
+  opacity: 0.5,
+  total: 50
+};
+
 let label = {
   font: "16px Arial",
   color: "#0095DD",
@@ -67,6 +75,7 @@ let health = 10;
 
 let meteors = [];
 let bricks = [];
+let circles = [];
 let total_hit = 0;
 let colors = ["#7FFF00", "#6495ED", "#FF8C00", "#FF4500"];
 
@@ -151,6 +160,18 @@ function drawBrick(brick_) {
   fill(colors[brick_.status - 1]);
 }
 
+function drawCircle(c) {
+  ctx.beginPath();
+  ctx.arc(c.x, c.y, c.radius, 0, 2 * Math.PI);
+  fill("rgba(" + c.r + ", " + c.g + ", " + c.b + ", " + circle.opacity + ")");
+}
+
+function drawLabel(message, number, position) {
+  ctx.font = label.font;
+  ctx.fillStyle = label.color;
+  ctx.fillText(message + number, position, label.size);
+}
+
 function drawBricks() {
   for (c = 0; c < brick.cols; c++) {
     for (r = 0; r < brick.rows; r++) {
@@ -164,19 +185,27 @@ function drawBricks() {
   }
 }
 
-function drawLabel(message, number, position) {
-  ctx.font = label.font;
-  ctx.fillStyle = label.color;
-  ctx.fillText(message + number, position, label.size);
+function drawCircles() {
+  for (let j = circles.length - 1; j >= 0; j--) {
+    let c = circles[j];
+    drawCircle(c);
+    c.x += c.dx;
+    c.y += c.dy;
+    c.radius -= circle.decrease;
+    if (c.radius <= 0 || c.x < 0 || c.x > canvas.width || c.y < 0 || c.y > canvas.height) {
+      circles.splice(j, 1);
+    }
+  }
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBall();
   drawPaddle();
-  drawBricks();
   drawLabel("Score: ", score, 10);
   drawLabel("Lives: ", health, canvas.width - 80);
+  drawBricks();
+  drawCircles();
   createMeteors();
   removeMeteors();
   drawMeteors();
@@ -252,6 +281,18 @@ function controlBricks() {
         }
         b.status--;
         score++;
+        for (let j = 0; j < circle.total; j++) {
+          circles.push({
+            x: ball.x,
+            y: ball.y,
+            radius: 2 + Math.random() * 3,
+            dx: -5 + Math.random() * 10,
+            dy: -5 + Math.random() * 10,
+            r: Math.floor(Math.random() * 255),
+            g: Math.floor(Math.random() * 255),
+            b: Math.floor(Math.random() * 255)
+          });
+        }
         if (score === total_hit) {
           end("YOU WIN, CONGRATULATIONS!");
         }
