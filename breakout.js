@@ -3,94 +3,87 @@ let ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+let score = 0;
+let lives = 10;
+let total_hit = 0;
+
 let ball = {
   x: canvas.width / 2 - 10,
   y: canvas.height - 20,
-  dx: 0,
-  dy: -10,
   radius: 10,
+  color: "#0095DD",
   angle: 60,
   speed: 10,
-  color: "#0095DD"
-};
-
-let paddle = {
-  x: (canvas.width - 150) / 2,
-  y: canvas.height - 20,
-  dx: 0,
-  width: 150,
-  height: 20,
-  arc: 10,
-  speed: 20,
-  color: "#0095DD"
-};
-
-function resetBall() {
-  alert("START AGAIN!");
-  ball.x = canvas.width / 2 - ball.radius;
-  ball.y = canvas.height - 2 * ball.radius;
-  ball.dx = 0;
-  ball.dy = -ball.speed;
-  paddle.x = (canvas.width - paddle.width) / 2;
-  meteors = [];
-  circles = [];
-}
-
-let meteor = {
-  probability: 0.005,
-  speed: 100,
-  speedVariance: 50,
-  outerRadius: 20,
-  innerRadius: 10,
-  spikes: 10,
-  color: "#FF4500"
+  speedX: 0,
+  speedY: -10
 };
 
 let brick = {
   rows: 5,
-  cols: 8,
   width: 80,
   height: 20,
   arc: 10,
   paddingX: 50,
   paddingY: 50,
   marginX: 50,
-  marginY: 50
+  marginY: 50,
+  colors: ["#7FFF00", "#6495ED", "#FF8C00", "#FF4500"]
 };
 
-let circle = {
+let meteor = {
+  innerRadius: 10,
+  outerRadius: 20,
+  spikes: 10,
+  color: "#FF4500",
+  highestSpeed: 150,
+  lowestSpeed: 100,
+  probability: 0.005
+};
+
+let paddle = {
+  x: (canvas.width - 150) / 2,
+  y: canvas.height - 20,
+  width: 150,
+  height: 20,
+  arc: 10,
+  color: "#0095DD",
+  speed: 20,
+  speedX: 0
+};
+
+let particle = {
+  alpha: 0.5,
   decrease: 0.05,
-  opacity: 0.5,
+  highestRadius: 5,
+  highestSpeedX: 5,
+  highestSpeedY: 5,
+  lowestRadius: 2,
+  lowestSpeedX: -5,
+  lowestSpeedY: -5,
   total: 50
 };
 
 let label = {
-  font: "16px Arial",
+  font: "24px Calibri",
   color: "#0095DD",
-  size: 20
+  margin: 20
 };
 
-let score = 0;
-let health = 10;
-
-let meteors = [];
 let bricks = [];
-let circles = [];
-let total_hit = 0;
-let colors = ["#7FFF00", "#6495ED", "#FF8C00", "#FF4500"];
+let meteors = [];
+let particles = [];
 
 brick.cols = Math.floor((canvas.width - brick.marginX) / (brick.width + brick.paddingX));
-brick.paddingX = (canvas.width - brick.cols * brick.width - brick.marginX) / brick.cols;
-for (c = 0; c < brick.cols; c++) {
-  bricks[c] = [];
-  for (r = 0; r < brick.rows; r++) {
-    let status = Math.floor(Math.random() * colors.length + 1);
-    bricks[c][r] = {
-      x: 0,
-      y: 0,
-      status: status
-    };
-    total_hit += +status;
+brick.paddingX = (canvas.width - brick.marginX - brick.cols * brick.width) / brick.cols;
+for (let c = 0; c < brick.cols; c++) {
+  for (let r = 0; r < brick.rows; r++) {
+    let status = Math.floor(Math.random() * brick.colors.length);
+    bricks.push({
+      x: (c * (brick.width + brick.paddingX)) + brick.marginX,
+      y: (r * (brick.height + brick.paddingY)) + brick.marginY,
+      status
+    });
+    total_hit += +status + 1;
   }
 }
 draw();
@@ -99,35 +92,74 @@ document.addEventListener("keyup", keyUpHandler);
 document.addEventListener("mousemove", mouseMoveHandler);
 window.addEventListener("resize", resizeHandler);
 
-function drawStar(x_, y_, outerRadius, innerRadius, spikes) {
-  let x = x_,
-    y = y_;
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawCircle(ball);
+  for (let b of bricks) {
+    drawRoundRect(b, brick.width, brick.height, brick.arc, brick.colors[b.status]);
+  }
+  for (let m of meteors) {
+    drawMeteor(m);
+  }
+  drawRoundRect(paddle, paddle.width, paddle.height, paddle.arc, paddle.color);
+  for (let p of particles) {
+    drawCircle(p);
+  }
+  drawLabel("Score: " + score, 10);
+  drawLabel("Lives: " + lives, canvas.width - 120);
+  processBall();
+  processBricks();
+  processParticles();
+  createMeteors();
+  removeMeteors();
+  requestAnimationFrame(draw);
+}
+
+function drawCircle(c) {
+  ctx.beginPath();
+  ctx.arc(c.x, c.y, c.radius, 0, 2 * Math.PI);
+  fill(c.color);
+}
+
+function drawRoundRect(r, width, height, arc, color) {
+  ctx.beginPath();
+  ctx.moveTo(r.x + arc, r.y);
+  ctx.lineTo(r.x + width - arc, r.y);
+  ctx.quadraticCurveTo(r.x + width, r.y, r.x + width, r.y + arc);
+  ctx.lineTo(r.x + width, r.y + height - arc);
+  ctx.quadraticCurveTo(r.x + width, r.y + height, r.x + width - arc, r.y + height);
+  ctx.lineTo(r.x + arc, r.y + height);
+  ctx.quadraticCurveTo(r.x, r.y + height, r.x, r.y + height - arc);
+  ctx.lineTo(r.x, r.y + arc);
+  ctx.quadraticCurveTo(r.x, r.y, r.x + arc, r.y);
+  fill(color);
+}
+
+function drawMeteor(m) {
+  ctx.beginPath();
+  let x = m.x;
+  let y = m.y;
   let rot = Math.PI / 2 * 3;
-  let step = Math.PI / spikes;
-  ctx.moveTo(x_, y_ - outerRadius);
-  for (i = 0; i < spikes; i++) {
-    x = x_ + Math.cos(rot) * outerRadius;
-    y = y_ + Math.sin(rot) * outerRadius;
+  let step = Math.PI / meteor.spikes;
+  ctx.moveTo(m.x, m.y - meteor.outerRadius);
+  for (i = 0; i < meteor.spikes; i++) {
+    x = m.x + Math.cos(rot) * meteor.outerRadius;
+    y = m.y + Math.sin(rot) * meteor.outerRadius;
     ctx.lineTo(x, y);
     rot += step;
-    x = x_ + Math.cos(rot) * innerRadius;
-    y = y_ + Math.sin(rot) * innerRadius;
+    x = m.x + Math.cos(rot) * meteor.innerRadius;
+    y = m.y + Math.sin(rot) * meteor.innerRadius;
     ctx.lineTo(x, y);
     rot += step;
   }
-  ctx.lineTo(x_, y_ - outerRadius);
+  ctx.lineTo(m.x, m.y - meteor.outerRadius);
+  fill(meteor.color);
 }
 
-function drawRoundRect(x, y, width, height, radius) {
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + width - radius, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-  ctx.lineTo(x + width, y + height - radius);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-  ctx.lineTo(x + radius, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
+function drawLabel(text, x) {
+  ctx.font = label.font;
+  ctx.fillStyle = label.color;
+  ctx.fillText(text, x, label.margin);
 }
 
 function fill(color) {
@@ -136,96 +168,77 @@ function fill(color) {
   ctx.closePath();
 }
 
-function drawBall() {
-  ctx.beginPath();
-  ctx.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI);
-  fill(ball.color);
+function processBall() {
+  if (ball.x + ball.speedX < ball.radius || ball.x + ball.speedX > canvas.width - ball.radius) {
+    ball.speedX = -ball.speedX;
+  }
+  if (ball.y + ball.speedY < ball.radius) {
+    ball.speedY = -ball.speedY;
+  } else if (ball.y + ball.speedY > canvas.height - ball.radius) {
+    if (intersects(ball.x, ball.y, 2 * ball.radius, 2 * ball.radius, paddle.x, paddle.y, paddle.width, paddle.height)) {
+      let x = (paddle.x + paddle.width / 2.0 - ball.x - ball.radius) / (paddle.width / 2.0);
+      ball.speedY = -ball.speed * Math.cos(x * ball.angle * Math.PI / 180);
+      ball.speedX = -ball.speed * Math.sin(x * ball.angle * Math.PI / 180);
+    } else {
+      die();
+    }
+  }
+  ball.x += ball.speedX;
+  ball.y += ball.speedY;
+  paddle.x += paddle.speedX;
 }
 
-function drawPaddle() {
-  ctx.beginPath();
-  drawRoundRect(paddle.x, paddle.y, paddle.width, paddle.height, paddle.arc);
-  fill(paddle.color);
-}
-
-function drawMeteor(m) {
-  ctx.beginPath();
-  drawStar(m.x, m.y, meteor.outerRadius, meteor.innerRadius, meteor.spikes);
-  fill(meteor.color);
-}
-
-function drawBrick(brick_) {
-  ctx.beginPath();
-  drawRoundRect(brick_.x, brick_.y, brick.width, brick.height, brick.arc);
-  fill(colors[brick_.status - 1]);
-}
-
-function drawCircle(c) {
-  ctx.beginPath();
-  ctx.arc(c.x, c.y, c.radius, 0, 2 * Math.PI);
-  fill("rgba(" + c.r + ", " + c.g + ", " + c.b + ", " + circle.opacity + ")");
-}
-
-function drawLabel(message, number, position) {
-  ctx.font = label.font;
-  ctx.fillStyle = label.color;
-  ctx.fillText(message + number, position, label.size);
-}
-
-function drawBricks() {
-  for (c = 0; c < brick.cols; c++) {
-    for (r = 0; r < brick.rows; r++) {
-      let b = bricks[c][r];
-      if (b.status > 0) {
-        b.x = (c * (brick.width + brick.paddingX)) + brick.marginX;
-        b.y = (r * (brick.height + brick.paddingY)) + brick.marginY;
-        drawBrick(b);
+function processBricks() {
+  for (let i = bricks.length - 1; i >= 0; i--) {
+    let b = bricks[i];
+    if (intersects(ball.x, ball.y, 2 * ball.radius, 2 * ball.radius, b.x, b.y, brick.width, brick.height)) {
+      ball.speedY = -ball.speedY;
+      if (ball.y < b.y && ball.speedY > 0) {
+        ball.y = b.y - 2 * ball.radius;
+      } else if (ball.y >= b.y && ball.speedY <= 0) {
+        ball.y = b.y + brick.height;
+      }
+      b.status--;
+      score++;
+      for (let i = 0; i < particle.total; i++) {
+        let color = generateRandomRgbColor();
+        particles.push({
+          x: ball.x,
+          y: ball.y,
+          radius: particle.lowestRadius + Math.random() * (particle.highestRadius - particle.lowestRadius),
+          color: "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", " + particle.alpha + ")",
+          speedX: particle.lowestSpeedX + Math.random() * (particle.highestSpeedX - particle.lowestSpeedX),
+          speedY: particle.lowestSpeedY + Math.random() * (particle.highestSpeedY - particle.lowestSpeedY),
+        });
+      }
+      if (score === total_hit) {
+        end("YOU WIN, CONGRATULATIONS!");
+      }
+      if (b.status < 0) {
+        bricks.splice(i, 1);
       }
     }
   }
 }
 
-function drawCircles() {
-  for (let j = circles.length - 1; j >= 0; j--) {
-    let c = circles[j];
-    drawCircle(c);
-    c.x += c.dx;
-    c.y += c.dy;
-    c.radius -= circle.decrease;
-    if (c.radius <= 0 || c.x < 0 || c.x > canvas.width || c.y < 0 || c.y > canvas.height) {
-      circles.splice(j, 1);
+function processParticles() {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    let p = particles[i];
+    p.x += p.speedX;
+    p.y += p.speedY;
+    p.radius -= particle.decrease;
+    if (p.radius <= 0 || p.x < 0 || p.x > canvas.width || p.y < 0 || p.y > canvas.height) {
+      particles.splice(i, 1);
     }
   }
 }
 
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawBall();
-  drawPaddle();
-  drawLabel("Score: ", score, 10);
-  drawLabel("Lives: ", health, canvas.width - 80);
-  drawBricks();
-  drawCircles();
-  createMeteors();
-  removeMeteors();
-  drawMeteors();
-  controlBall();
-  controlBricks();
-  ball.x += ball.dx;
-  ball.y += ball.dy;
-  paddle.x += paddle.dx;
-  requestAnimationFrame(draw);
-}
-
 function createMeteors() {
   if (Math.random() < meteor.probability) {
-    let x = Math.random() * canvas.width;
-    let y = 0;
-    let s = Math.floor(Math.random() * meteor.speedVariance + meteor.speed);
     meteors.push({
-      x,
-      y,
-      dy: canvas.height / s
+      x: Math.floor(Math.random() * canvas.width),
+      y: 0,
+      speedY: canvas.height / (meteor.lowestSpeed + Math.random() * (meteor.highestSpeed - meteor.lowestSpeed))
     });
   }
 }
@@ -233,7 +246,8 @@ function createMeteors() {
 function removeMeteors() {
   for (let i = meteors.length - 1; i >= 0; i--) {
     let m = meteors[i];
-    if (m.y + m.dy > canvas.height - meteor.outerRadius) {
+    m.y += m.speedY;
+    if (m.y > canvas.height - meteor.outerRadius) {
       meteors.splice(i, 1);
     }
     if (intersects(m.x, m.y, meteor.outerRadius, meteor.outerRadius, paddle.x, paddle.y, paddle.width, paddle.height)) {
@@ -244,61 +258,8 @@ function removeMeteors() {
   }
 }
 
-function drawMeteors() {
-  for (let meteor of meteors) {
-    meteor.y += meteor.dy;
-    drawMeteor(meteor);
-  }
-}
-
-function controlBall() {
-  if (ball.x + ball.dx < ball.radius || ball.x + ball.dx > canvas.width - ball.radius) {
-    ball.dx = -ball.dx;
-  }
-  if (ball.y + ball.dy < ball.radius) {
-    ball.dy = -ball.dy;
-  } else if (ball.y + ball.dy > canvas.height - ball.radius) {
-    if (intersects(ball.x, ball.y, 2 * ball.radius, 2 * ball.radius, paddle.x, paddle.y, paddle.width, paddle.height)) {
-      let x = (paddle.x + paddle.width / 2.0 - ball.x - ball.radius) / (paddle.width / 2.0);
-      ball.dy = -ball.speed * Math.cos(x * ball.angle * Math.PI / 180);
-      ball.dx = -ball.speed * Math.sin(x * ball.angle * Math.PI / 180);
-    } else {
-      die();
-    }
-  }
-}
-
-function controlBricks() {
-  for (c = 0; c < brick.cols; c++) {
-    for (r = 0; r < brick.rows; r++) {
-      let b = bricks[c][r];
-      if (b.status > 0 && intersects(ball.x, ball.y, 2 * ball.radius, 2 * ball.radius, b.x, b.y, brick.width, brick.height)) {
-        ball.dy = -ball.dy;
-        if (ball.y < b.y) {
-          ball.y = b.y - 2 * ball.radius;
-        } else {
-          ball.y = b.y + brick.height;
-        }
-        b.status--;
-        score++;
-        for (let j = 0; j < circle.total; j++) {
-          circles.push({
-            x: ball.x,
-            y: ball.y,
-            radius: 2 + Math.random() * 3,
-            dx: -5 + Math.random() * 10,
-            dy: -5 + Math.random() * 10,
-            r: Math.floor(Math.random() * 255),
-            g: Math.floor(Math.random() * 255),
-            b: Math.floor(Math.random() * 255)
-          });
-        }
-        if (score === total_hit) {
-          end("YOU WIN, CONGRATULATIONS!");
-        }
-      }
-    }
-  }
+function generateRandomRgbColor() {
+  return [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)];
 }
 
 function intersects(x1, y1, w1, h1, x2, y2, w2, h2) {
@@ -306,11 +267,15 @@ function intersects(x1, y1, w1, h1, x2, y2, w2, h2) {
 }
 
 function die() {
-  health--;
-  if (health === 0) {
+  if (--lives === 0) {
     end("GAME OVER!");
   } else {
-    resetBall();
+    alert("START AGAIN!");
+    ball.x = canvas.width / 2 - ball.radius;
+    ball.y = canvas.height - 2 * ball.radius;
+    ball.speedX = 0;
+    ball.speedY = -ball.speed;
+    paddle.x = (canvas.width - paddle.width) / 2;
   }
 }
 
@@ -321,17 +286,16 @@ function end(message) {
 
 function keyDownHandler(e) {
   if (e.keyCode === 39) {
-    paddle.dx = paddle.speed;
-  } else if (e.keyCode === 37) {
-    paddle.dx = -paddle.speed;
+    paddle.speedX = paddle.speed;
+  }
+  if (e.keyCode === 37) {
+    paddle.speedX = -paddle.speed;
   }
 }
 
 function keyUpHandler(e) {
-  if (e.keyCode === 39) {
-    paddle.dx = 0;
-  } else if (e.keyCode === 37) {
-    paddle.dx = 0;
+  if (e.keyCode === 39 || e.keyCode === 37) {
+    paddle.speedX = 0;
   }
 }
 
