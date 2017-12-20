@@ -64,7 +64,7 @@ let particle = {
 };
 
 let label = {
-  font: "24px Calibri",
+  font: "24px Arial",
   color: "#0095DD",
   margin: 20
 };
@@ -106,7 +106,7 @@ function draw() {
     drawCircle(p);
   }
   drawLabel("Score: " + score, 10);
-  drawLabel("Lives: " + lives, canvas.width - 120);
+  drawLabel("Lives: " + lives, canvas.width - 110);
   processBall();
   processBricks();
   processParticles();
