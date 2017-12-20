@@ -5,7 +5,7 @@ canvas.height = window.innerHeight;
 
 let score = 0;
 let lives = 10;
-let total_hit = 0;
+let totalHit = 0;
 
 let ball = {
   x: canvas.width / 2 - 10,
@@ -75,15 +75,15 @@ let particles = [];
 
 brick.cols = Math.floor((canvas.width - brick.marginX) / (brick.width + brick.paddingX));
 brick.paddingX = (canvas.width - brick.marginX - brick.cols * brick.width) / brick.cols;
-for (let c = 0; c < brick.cols; c++) {
-  for (let r = 0; r < brick.rows; r++) {
+for (let i = 0; i < brick.cols; i++) {
+  for (let j = 0; j < brick.rows; j++) {
     let status = Math.floor(Math.random() * brick.colors.length);
     bricks.push({
-      x: (c * (brick.width + brick.paddingX)) + brick.marginX,
-      y: (r * (brick.height + brick.paddingY)) + brick.marginY,
+      x: (i * (brick.width + brick.paddingX)) + brick.marginX,
+      y: (j * (brick.height + brick.paddingY)) + brick.marginY,
       status
     });
-    total_hit += +status + 1;
+    totalHit += +status + 1;
   }
 }
 draw();
@@ -201,17 +201,17 @@ function processBricks() {
       b.status--;
       score++;
       for (let i = 0; i < particle.total; i++) {
-        let color = generateRandomRgbColor();
+        let c = generateRandomRgbColor();
         particles.push({
           x: ball.x,
           y: ball.y,
           radius: particle.lowestRadius + Math.random() * (particle.highestRadius - particle.lowestRadius),
-          color: "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", " + particle.alpha + ")",
+          color: "rgba(" + c[0] + ", " + c[1] + ", " + c[2] + ", " + particle.alpha + ")",
           speedX: particle.lowestSpeedX + Math.random() * (particle.highestSpeedX - particle.lowestSpeedX),
           speedY: particle.lowestSpeedY + Math.random() * (particle.highestSpeedY - particle.lowestSpeedY),
         });
       }
-      if (score === total_hit) {
+      if (score === totalHit) {
         end("YOU WIN, CONGRATULATIONS!");
       }
       if (b.status < 0) {
