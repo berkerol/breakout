@@ -100,6 +100,7 @@ function draw () {
   for (let b of bricks) {
     drawRoundRect(b, brick.width, brick.height, brick.arc, brick.colors[b.status]);
   }
+  ctx.fillStyle = meteor.color;
   for (let m of meteors) {
     drawMeteor(m);
   }
@@ -107,6 +108,8 @@ function draw () {
   for (let p of particles) {
     drawCircle(p);
   }
+  ctx.font = label.font;
+  ctx.fillStyle = label.color;
   drawLabel('Score: ' + score, 10);
   drawLabel('Lives: ' + lives, canvas.width - 110);
   processBall();
@@ -155,12 +158,11 @@ function drawMeteor (m) {
     rot += step;
   }
   ctx.lineTo(m.x, m.y - meteor.outerRadius);
-  fill(meteor.color);
+  ctx.fill();
+  ctx.closePath();
 }
 
 function drawLabel (text, x) {
-  ctx.font = label.font;
-  ctx.fillStyle = label.color;
   ctx.fillText(text, x, label.margin);
 }
 
