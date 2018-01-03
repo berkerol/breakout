@@ -1,5 +1,3 @@
-/* global alert */
-/* global requestAnimationFrame */
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -117,7 +115,7 @@ function draw () {
   processParticles();
   createMeteors();
   removeMeteors();
-  requestAnimationFrame(draw);
+  window.requestAnimationFrame(draw);
 }
 
 function drawCircle (c) {
@@ -274,7 +272,7 @@ function die () {
   if (--lives === 0) {
     end('GAME OVER!');
   } else {
-    alert('START AGAIN!');
+    window.alert('START AGAIN!');
     ball.x = canvas.width / 2 - ball.radius;
     ball.y = canvas.height - 2 * ball.radius;
     ball.speedX = 0;
@@ -284,7 +282,7 @@ function die () {
 }
 
 function end (message) {
-  alert(message);
+  window.alert(message);
   document.location.reload();
 }
 
