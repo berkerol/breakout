@@ -34,6 +34,7 @@ let meteor = {
   innerRadius: 10,
   outerRadius: 20,
   spikes: 10,
+  shadowBlur: 20,
   color: '#FF4500',
   highestSpeed: 150,
   lowestSpeed: 100,
@@ -98,10 +99,14 @@ function draw () {
   for (let b of bricks) {
     drawRoundRect(b, brick.width, brick.height, brick.arc, brick.colors[b.status]);
   }
+  ctx.save();
+  ctx.shadowBlur = meteor.shadowBlur;
+  ctx.shadowColor = meteor.color;
   ctx.fillStyle = meteor.color;
   for (let m of meteors) {
     drawMeteor(m);
   }
+  ctx.restore();
   drawRoundRect(paddle, paddle.width, paddle.height, paddle.arc, paddle.color);
   for (let p of particles) {
     drawCircle(p);
