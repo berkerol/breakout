@@ -19,14 +19,13 @@ let ball = {
 };
 
 let brick = {
-  rows: 5,
-  width: 80,
-  height: 20,
-  arc: 10,
-  paddingX: 50,
-  paddingY: 50,
-  marginX: 50,
-  marginY: 50,
+  width: 100,
+  height: 25,
+  arc: 15,
+  paddingX: 35,
+  paddingY: 30,
+  marginX: 30,
+  marginY: 30,
   colors: ['#7FFF00', '#6495ED', '#FF8C00', '#FF4500']
 };
 
@@ -42,8 +41,6 @@ let meteor = {
 };
 
 let paddle = {
-  x: (canvas.width - 150) / 2,
-  y: canvas.height - 20,
   width: 150,
   height: 20,
   arc: 10,
@@ -74,8 +71,7 @@ let bricks = [];
 let meteors = [];
 let particles = [];
 
-brick.cols = Math.floor((canvas.width - brick.marginX) / (brick.width + brick.paddingX));
-brick.paddingX = (canvas.width - brick.marginX - brick.cols * brick.width) / brick.cols;
+resizeHandler();
 for (let i = 0; i < brick.cols; i++) {
   for (let j = 0; j < brick.rows; j++) {
     let status = Math.floor(Math.random() * brick.colors.length);
@@ -313,5 +309,10 @@ function mouseMoveHandler (e) {
 function resizeHandler () {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
+  brick.cols = Math.floor((canvas.width - 2 * brick.marginX + brick.paddingX) / (brick.width + brick.paddingX));
+  brick.rows = Math.floor((canvas.height / 2 - brick.marginY + brick.paddingY) / (brick.height + brick.paddingY));
+  brick.marginX = (canvas.width - brick.cols * (brick.width + brick.paddingX) + brick.paddingX) / 2;
+  brick.marginY = (canvas.height / 2 - brick.rows * (brick.height + brick.paddingY) + brick.paddingY);
+  paddle.x = (canvas.width - paddle.width) / 2;
   paddle.y = canvas.height - paddle.height;
 }
