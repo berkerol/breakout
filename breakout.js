@@ -103,7 +103,6 @@ function draw () {
   ctx.save();
   ctx.shadowBlur = meteor.shadowBlur;
   ctx.shadowColor = meteor.color;
-  ctx.fillStyle = meteor.color;
   for (let m of meteors) {
     drawMeteor(m);
   }
@@ -114,8 +113,8 @@ function draw () {
   }
   ctx.font = label.font;
   ctx.fillStyle = label.color;
-  drawLabel('Score: ' + score, 10);
-  drawLabel('Lives: ' + lives, canvas.width - 110);
+  ctx.fillText('Score: ' + score, 10, label.margin);
+  ctx.fillText('Lives: ' + lives, canvas.width - 110, label.margin);
   processBall();
   processBricks();
   processParticles();
@@ -162,12 +161,7 @@ function drawMeteor (m) {
     rot += step;
   }
   ctx.lineTo(m.x, m.y - meteor.outerRadius);
-  ctx.fill();
-  ctx.closePath();
-}
-
-function drawLabel (text, x) {
-  ctx.fillText(text, x, label.margin);
+  fill(meteor.color);
 }
 
 function fill (color) {
