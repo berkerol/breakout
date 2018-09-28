@@ -177,7 +177,7 @@ function processBall () {
   if (ball.y + ball.speedY < ball.radius) {
     ball.speedY = -ball.speedY;
   } else if (ball.y + ball.speedY > canvas.height - ball.radius) {
-    if (intersects(ball.x, ball.y, 2 * ball.radius, 2 * ball.radius, paddle.x, paddle.y, paddle.width, paddle.height)) {
+    if (intersects(paddle, paddle.width, paddle.height, ball, ball.radius)) {
       let x = (paddle.x + paddle.width / 2.0 - ball.x - ball.radius) / (paddle.width / 2.0);
       ball.speedY = -ball.speed * Math.cos(x * ball.angle * Math.PI / 180);
       ball.speedX = -ball.speed * Math.sin(x * ball.angle * Math.PI / 180);
@@ -193,7 +193,7 @@ function processBall () {
 function processBricks () {
   for (let i = bricks.length - 1; i >= 0; i--) {
     let b = bricks[i];
-    if (intersects(ball.x, ball.y, 2 * ball.radius, 2 * ball.radius, b.x, b.y, brick.width, brick.height)) {
+    if (intersects(b, brick.width, brick.height, ball, ball.radius)) {
       ball.speedY = -ball.speedY;
       if (ball.y < b.y && ball.speedY > 0) {
         ball.y = b.y - 2 * ball.radius;
@@ -252,7 +252,7 @@ function removeMeteors () {
     if (m.y > canvas.height - meteor.outerRadius) {
       meteors.splice(i, 1);
     }
-    if (intersects(m.x, m.y, meteor.outerRadius, meteor.outerRadius, paddle.x, paddle.y, paddle.width, paddle.height)) {
+    if (intersects(paddle, paddle.width, paddle.height, m, meteor.outerRadius)) {
       meteors.splice(i, 1);
       die();
       break;
@@ -264,8 +264,18 @@ function generateRandomRgbColor () {
   return [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)];
 }
 
-function intersects (x1, y1, w1, h1, x2, y2, w2, h2) {
-  return x2 < x1 + w1 && x2 + w2 > x1 && y2 < y1 + h1 && y2 + h2 > y1;
+function intersects (r, width, height, c, radius) {
+  let distX = Math.abs(c.x - r.x - width / 2);
+  let distY = Math.abs(c.y - r.y - height / 2);
+  if (distX > (width / 2 + radius) || distY > (height / 2 + radius)) {
+    return false;
+  }
+  if (distX <= (width / 2) || distY <= (height / 2)) {
+    return true;
+  }
+  let dX = distX - width / 2;
+  let dY = distY - height / 2;
+  return (dX * dX + dY * dY <= (radius * radius));
 }
 
 function die () {
