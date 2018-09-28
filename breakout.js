@@ -171,19 +171,17 @@ function fill (color) {
 }
 
 function processBall () {
-  if (ball.x + ball.speedX < ball.radius || ball.x + ball.speedX > canvas.width - ball.radius) {
+  if ((ball.x < ball.radius && ball.speedX < 0) || (ball.x > canvas.width - ball.radius && ball.speedX > 0)) {
     ball.speedX = -ball.speedX;
   }
-  if (ball.y + ball.speedY < ball.radius) {
+  if (ball.y < ball.radius && ball.speedY < 0) {
     ball.speedY = -ball.speedY;
-  } else if (ball.y + ball.speedY > canvas.height - ball.radius) {
-    if (intersects(paddle, paddle.width, paddle.height, ball, ball.radius)) {
-      let x = (paddle.x + paddle.width / 2.0 - ball.x - ball.radius) / (paddle.width / 2.0);
-      ball.speedY = -ball.speed * Math.cos(x * ball.angle * Math.PI / 180);
-      ball.speedX = -ball.speed * Math.sin(x * ball.angle * Math.PI / 180);
-    } else {
-      die();
-    }
+  } else if (ball.y > canvas.height - ball.radius && ball.speedY > 0) {
+    die();
+  } else if (ball.y > canvas.height - paddle.height - ball.radius && ball.speedY > 0 && intersects(paddle, paddle.width, paddle.height, ball, ball.radius)) {
+    let x = (paddle.x + paddle.width / 2.0 - ball.x - ball.radius) / (paddle.width / 2.0);
+    ball.speedX = -ball.speed * Math.sin(x * ball.angle * Math.PI / 180);
+    ball.speedY = -ball.speed * Math.cos(x * ball.angle * Math.PI / 180);
   }
   ball.x += ball.speedX;
   ball.y += ball.speedY;
