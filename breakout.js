@@ -1,7 +1,13 @@
+/* global performance */
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+
+const getTime = typeof performance === 'function' ? performance.now : Date.now;
+const FRAME_DURATION = 1000 / 58;
+let then = getTime();
+let acc = 0;
 
 let score = 0;
 let lives = 10;
@@ -95,6 +101,19 @@ document.addEventListener('mousemove', mouseMoveHandler);
 window.addEventListener('resize', resizeHandler);
 
 function draw () {
+  let now = getTime();
+  let ms = now - then;
+  let frames = 0;
+  then = now;
+  if (ms < 1000) {
+    acc += ms;
+    while (acc >= FRAME_DURATION) {
+      frames++;
+      acc -= FRAME_DURATION;
+    }
+  } else {
+    ms = 0;
+  }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawCircle(ball);
   for (let b of bricks) {
@@ -115,11 +134,11 @@ function draw () {
   ctx.fillStyle = label.color;
   ctx.fillText('Score: ' + score, 10, label.margin);
   ctx.fillText('Lives: ' + lives, canvas.width - 110, label.margin);
-  processBall();
+  processBall(frames);
   processBricks();
-  processParticles();
+  processParticles(frames);
   createMeteors();
-  removeMeteors();
+  removeMeteors(frames);
   window.requestAnimationFrame(draw);
 }
 
@@ -170,7 +189,7 @@ function fill (color) {
   ctx.closePath();
 }
 
-function processBall () {
+function processBall (frames) {
   if ((ball.x < ball.radius && ball.speedX < 0) || (ball.x > canvas.width - ball.radius && ball.speedX > 0)) {
     ball.speedX = -ball.speedX;
   }
@@ -183,9 +202,9 @@ function processBall () {
     ball.speedX = -ball.speed * Math.sin(x * ball.angle * Math.PI / 180);
     ball.speedY = -ball.speed * Math.cos(x * ball.angle * Math.PI / 180);
   }
-  ball.x += ball.speedX;
-  ball.y += ball.speedY;
-  paddle.x += paddle.speedX;
+  ball.x += ball.speedX * frames;
+  ball.y += ball.speedY * frames;
+  paddle.x += paddle.speedX * frames;
 }
 
 function processBricks () {
@@ -221,11 +240,11 @@ function processBricks () {
   }
 }
 
-function processParticles () {
+function processParticles (frames) {
   for (let i = particles.length - 1; i >= 0; i--) {
     let p = particles[i];
-    p.x += p.speedX;
-    p.y += p.speedY;
+    p.x += p.speedX * frames;
+    p.y += p.speedY * frames;
     p.radius -= particle.decrease;
     if (p.radius <= 0 || p.x < 0 || p.x > canvas.width || p.y < 0 || p.y > canvas.height) {
       particles.splice(i, 1);
@@ -243,10 +262,10 @@ function createMeteors () {
   }
 }
 
-function removeMeteors () {
+function removeMeteors (frames) {
   for (let i = meteors.length - 1; i >= 0; i--) {
     let m = meteors[i];
-    m.y += m.speedY;
+    m.y += m.speedY * frames;
     if (m.y > canvas.height - meteor.outerRadius) {
       meteors.splice(i, 1);
     }
