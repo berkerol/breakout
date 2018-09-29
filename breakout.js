@@ -12,6 +12,8 @@ let acc = 0;
 let score = 0;
 let lives = 10;
 let totalHit = 0;
+let lastBrick = -1;
+let touchedPaddle = true;
 
 let ball = {
   x: canvas.width / 2 - 10,
@@ -89,6 +91,7 @@ for (let i = 0; i < brick.cols; i++) {
     bricks.push({
       x: (i * (brick.width + brick.paddingX)) + brick.marginX,
       y: (j * (brick.height + brick.paddingY)) + brick.marginY,
+      n: i * brick.rows + j,
       status
     });
     totalHit += +status + 1;
@@ -195,12 +198,14 @@ function processBall (frames) {
   }
   if (ball.y < ball.radius && ball.speedY < 0) {
     ball.speedY = -ball.speedY;
+    touchedPaddle = true;
   } else if (ball.y > canvas.height - ball.radius && ball.speedY > 0) {
     die();
   } else if (ball.y > canvas.height - paddle.height - ball.radius && ball.speedY > 0 && intersects(paddle, paddle.width, paddle.height, ball, ball.radius)) {
     let x = (paddle.x + paddle.width / 2.0 - ball.x - ball.radius) / (paddle.width / 2.0);
     ball.speedX = -ball.speed * Math.sin(x * ball.angle * Math.PI / 180);
     ball.speedY = -ball.speed * Math.cos(x * ball.angle * Math.PI / 180);
+    touchedPaddle = true;
   }
   ball.x += ball.speedX * frames;
   ball.y += ball.speedY * frames;
@@ -210,13 +215,10 @@ function processBall (frames) {
 function processBricks () {
   for (let i = bricks.length - 1; i >= 0; i--) {
     let b = bricks[i];
-    if (intersects(b, brick.width, brick.height, ball, ball.radius)) {
+    if ((touchedPaddle || lastBrick !== b.n) && intersects(b, brick.width, brick.height, ball, ball.radius)) {
       ball.speedY = -ball.speedY;
-      if (ball.y < b.y && ball.speedY > 0) {
-        ball.y = b.y - 2 * ball.radius;
-      } else if (ball.y >= b.y && ball.speedY <= 0) {
-        ball.y = b.y + brick.height;
-      }
+      touchedPaddle = false;
+      lastBrick = b.n;
       b.status--;
       score++;
       for (let i = 0; i < particle.total; i++) {
@@ -305,6 +307,7 @@ function die () {
     ball.speedX = 0;
     ball.speedY = -ball.speed;
     paddle.x = (canvas.width - paddle.width) / 2;
+    touchedPaddle = true;
   }
 }
 
