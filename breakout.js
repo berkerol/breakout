@@ -243,7 +243,7 @@ function processBricks () {
         });
       }
       if (score === totalHit) {
-        end('YOU WIN, CONGRATULATIONS!');
+        end('CONGRATULATIONS, YOU WON!');
       }
       if (b.status < 0) {
         bricks.splice(i, 1);
