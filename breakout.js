@@ -310,10 +310,10 @@ function intersects (r, width, height, c, radius) {
 function die () {
   if (--lives === 0) {
     end('GAME OVER!');
-  } else {
+  } else if (lives > 0) {
     window.alert('START AGAIN!');
     ball.x = canvas.width / 2 - ball.radius;
-    ball.y = canvas.height - 2 * ball.radius;
+    ball.y = canvas.height - paddle.height;
     ball.speedX = 0;
     ball.speedY = -ball.speed;
     paddle.x = (canvas.width - paddle.width) / 2;
@@ -323,7 +323,7 @@ function die () {
 
 function end (message) {
   window.alert(message);
-  document.location.reload();
+  window.location.reload(false);
 }
 
 function keyDownHandler (e) {
