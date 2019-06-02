@@ -1,7 +1,7 @@
 /* global performance */
 /* global FPSMeter */
-let canvas = document.getElementById('canvas');
-let ctx = canvas.getContext('2d');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -9,7 +9,7 @@ const getTime = typeof performance === 'function' ? performance.now : Date.now;
 const FRAME_DURATION = 1000 / 58;
 let then = getTime();
 let acc = 0;
-let meter = new FPSMeter({
+const meter = new FPSMeter({
   left: canvas.width - 130 + 'px',
   top: 'auto',
   bottom: '12px',
@@ -24,7 +24,7 @@ let totalHit = 0;
 let lastBrick = -1;
 let touchedPaddle = true;
 
-let ball = {
+const ball = {
   x: canvas.width / 2 - 10,
   y: canvas.height - 20,
   radius: 10,
@@ -35,7 +35,7 @@ let ball = {
   speedY: -10
 };
 
-let brick = {
+const brick = {
   width: 100,
   height: 25,
   arc: 15,
@@ -46,7 +46,7 @@ let brick = {
   colors: ['#7FFF00', '#6495ED', '#FF8C00', '#FF4500']
 };
 
-let meteor = {
+const meteor = {
   innerRadius: 10,
   outerRadius: 20,
   spikes: 10,
@@ -57,7 +57,7 @@ let meteor = {
   probability: 0.005
 };
 
-let paddle = {
+const paddle = {
   x: (canvas.width - 150) / 2,
   y: canvas.height - 20,
   width: 150,
@@ -68,7 +68,7 @@ let paddle = {
   speedX: 0
 };
 
-let particle = {
+const particle = {
   alpha: 0.5,
   decrease: 0.05,
   highestRadius: 5,
@@ -80,15 +80,15 @@ let particle = {
   total: 50
 };
 
-let label = {
+const label = {
   font: '24px Arial',
   color: '#0095DD',
   margin: 20
 };
 
-let bricks = [];
-let meteors = [];
-let particles = [];
+const bricks = [];
+const meteors = [];
+const particles = [];
 
 brick.cols = Math.floor((canvas.width - 2 * brick.marginX + brick.paddingX) / (brick.width + brick.paddingX));
 brick.rows = Math.floor((canvas.height / 2 - brick.marginY + brick.paddingY) / (brick.height + brick.paddingY));
@@ -96,7 +96,7 @@ brick.marginX = (canvas.width - brick.cols * (brick.width + brick.paddingX) + br
 brick.marginY = (canvas.height / 2 - brick.rows * (brick.height + brick.paddingY) + brick.paddingY);
 for (let i = 0; i < brick.cols; i++) {
   for (let j = 0; j < brick.rows; j++) {
-    let status = Math.floor(Math.random() * brick.colors.length);
+    const status = Math.floor(Math.random() * brick.colors.length);
     bricks.push({
       x: (i * (brick.width + brick.paddingX)) + brick.marginX,
       y: (j * (brick.height + brick.paddingY)) + brick.marginY,
@@ -113,7 +113,7 @@ document.addEventListener('mousemove', mouseMoveHandler);
 window.addEventListener('resize', resizeHandler);
 
 function draw () {
-  let now = getTime();
+  const now = getTime();
   let ms = now - then;
   let frames = 0;
   then = now;
@@ -129,18 +129,18 @@ function draw () {
   meter.tick();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawCircle(ball);
-  for (let b of bricks) {
+  for (const b of bricks) {
     drawRoundRect(b, brick.width, brick.height, brick.arc, brick.colors[b.status]);
   }
   ctx.save();
   ctx.shadowBlur = meteor.shadowBlur;
   ctx.shadowColor = meteor.color;
-  for (let m of meteors) {
+  for (const m of meteors) {
     drawMeteor(m);
   }
   ctx.restore();
   drawRoundRect(paddle, paddle.width, paddle.height, paddle.arc, paddle.color);
-  for (let p of particles) {
+  for (const p of particles) {
     drawCircle(p);
   }
   ctx.font = label.font;
@@ -180,7 +180,7 @@ function drawMeteor (m) {
   let x = m.x;
   let y = m.y;
   let rot = Math.PI / 2 * 3;
-  let step = Math.PI / meteor.spikes;
+  const step = Math.PI / meteor.spikes;
   ctx.moveTo(m.x, m.y - meteor.outerRadius);
   for (let i = 0; i < meteor.spikes; i++) {
     x = m.x + Math.cos(rot) * meteor.outerRadius;
@@ -212,7 +212,7 @@ function processBall (frames) {
   } else if (ball.y > canvas.height - ball.radius && ball.speedY > 0) {
     die();
   } else if (ball.y > canvas.height - paddle.height - ball.radius && ball.speedY > 0 && intersects(paddle, paddle.width, paddle.height, ball, ball.radius)) {
-    let x = (paddle.x + paddle.width / 2.0 - ball.x - ball.radius) / (paddle.width / 2.0);
+    const x = (paddle.x + paddle.width / 2.0 - ball.x - ball.radius) / (paddle.width / 2.0);
     ball.speedX = -ball.speed * Math.sin(x * ball.angle * Math.PI / 180);
     ball.speedY = -ball.speed * Math.cos(x * ball.angle * Math.PI / 180);
     touchedPaddle = true;
@@ -224,7 +224,7 @@ function processBall (frames) {
 
 function processBricks () {
   for (let i = bricks.length - 1; i >= 0; i--) {
-    let b = bricks[i];
+    const b = bricks[i];
     if ((touchedPaddle || lastBrick !== b.n) && intersects(b, brick.width, brick.height, ball, ball.radius)) {
       ball.speedY = -ball.speedY;
       touchedPaddle = false;
@@ -232,7 +232,7 @@ function processBricks () {
       b.status--;
       score++;
       for (let i = 0; i < particle.total; i++) {
-        let c = generateRandomRgbColor();
+        const c = generateRandomRgbColor();
         particles.push({
           x: ball.x,
           y: ball.y,
@@ -254,7 +254,7 @@ function processBricks () {
 
 function processParticles (frames) {
   for (let i = particles.length - 1; i >= 0; i--) {
-    let p = particles[i];
+    const p = particles[i];
     p.x += p.speedX * frames;
     p.y += p.speedY * frames;
     p.radius -= particle.decrease;
@@ -276,7 +276,7 @@ function createMeteors () {
 
 function removeMeteors (frames) {
   for (let i = meteors.length - 1; i >= 0; i--) {
-    let m = meteors[i];
+    const m = meteors[i];
     m.y += m.speedY * frames;
     if (m.y > canvas.height - meteor.outerRadius) {
       meteors.splice(i, 1);
@@ -294,16 +294,16 @@ function generateRandomRgbColor () {
 }
 
 function intersects (r, width, height, c, radius) {
-  let distX = Math.abs(c.x - r.x - width / 2);
-  let distY = Math.abs(c.y - r.y - height / 2);
+  const distX = Math.abs(c.x - r.x - width / 2);
+  const distY = Math.abs(c.y - r.y - height / 2);
   if (distX > (width / 2 + radius) || distY > (height / 2 + radius)) {
     return false;
   }
   if (distX <= (width / 2) || distY <= (height / 2)) {
     return true;
   }
-  let dX = distX - width / 2;
-  let dY = distY - height / 2;
+  const dX = distX - width / 2;
+  const dY = distY - height / 2;
   return (dX * dX + dY * dY <= (radius * radius));
 }
 
