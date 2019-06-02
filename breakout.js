@@ -237,7 +237,7 @@ function processBricks () {
           x: ball.x,
           y: ball.y,
           radius: particle.lowestRadius + Math.random() * (particle.highestRadius - particle.lowestRadius),
-          color: 'rgba(' + c[0] + ', ' + c[1] + ', ' + c[2] + ', ' + particle.alpha + ')',
+          color: `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${particle.alpha})`,
           speedX: particle.lowestSpeedX + Math.random() * (particle.highestSpeedX - particle.lowestSpeedX),
           speedY: particle.lowestSpeedY + Math.random() * (particle.highestSpeedY - particle.lowestSpeedY)
         });
