@@ -304,7 +304,7 @@ function intersects (r, width, height, c, radius) {
   }
   const dX = distX - width / 2;
   const dY = distY - height / 2;
-  return (dX * dX + dY * dY <= (radius * radius));
+  return dX ** 2 + dY ** 2 <= radius ** 2;
 }
 
 function die () {
