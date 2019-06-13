@@ -128,17 +128,23 @@ function draw () {
   meter.tick();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawCircle(ball);
+  drawRoundRect(paddle, paddle.width, paddle.height, paddle.arc, paddle.color);
   for (const b of bricks) {
     drawRoundRect(b, brick.width, brick.height, brick.arc, brick.colors[b.status]);
   }
-  ctx.save();
-  ctx.shadowBlur = meteor.shadowBlur;
-  ctx.shadowColor = meteor.color;
-  for (const m of meteors) {
-    drawMeteor(m);
+  if (meteors.length > 0) {
+    ctx.save();
+    ctx.shadowBlur = meteor.shadowBlur;
+    ctx.shadowColor = meteor.color;
+    ctx.fillStyle = meteor.color;
+    ctx.beginPath();
+    for (const m of meteors) {
+      drawMeteor(m);
+    }
+    ctx.fill();
+    ctx.closePath();
+    ctx.restore();
   }
-  ctx.restore();
-  drawRoundRect(paddle, paddle.width, paddle.height, paddle.arc, paddle.color);
   for (const p of particles) {
     drawCircle(p);
   }
@@ -175,7 +181,6 @@ function drawRoundRect (r, width, height, arc, color) {
 }
 
 function drawMeteor (m) {
-  ctx.beginPath();
   let x = m.x;
   let y = m.y;
   let rot = Math.PI / 2 * 3;
@@ -192,7 +197,6 @@ function drawMeteor (m) {
     rot += step;
   }
   ctx.lineTo(m.x, m.y - meteor.outerRadius);
-  fill(meteor.color);
 }
 
 function fill (color) {
