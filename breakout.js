@@ -142,7 +142,6 @@ function draw () {
       drawMeteor(m);
     }
     ctx.fill();
-    ctx.closePath();
     ctx.restore();
   }
   for (const p of particles) {
@@ -161,12 +160,14 @@ function draw () {
 }
 
 function drawCircle (c) {
+  ctx.fillStyle = c.color;
   ctx.beginPath();
   ctx.arc(c.x, c.y, c.radius, 0, 2 * Math.PI);
-  fill(c.color);
+  ctx.fill();
 }
 
 function drawRoundRect (r, width, height, arc, color) {
+  ctx.fillStyle = color;
   ctx.beginPath();
   ctx.moveTo(r.x + arc, r.y);
   ctx.lineTo(r.x + width - arc, r.y);
@@ -177,7 +178,7 @@ function drawRoundRect (r, width, height, arc, color) {
   ctx.quadraticCurveTo(r.x, r.y + height, r.x, r.y + height - arc);
   ctx.lineTo(r.x, r.y + arc);
   ctx.quadraticCurveTo(r.x, r.y, r.x + arc, r.y);
-  fill(color);
+  ctx.fill();
 }
 
 function drawMeteor (m) {
@@ -197,12 +198,6 @@ function drawMeteor (m) {
     rot += step;
   }
   ctx.lineTo(m.x, m.y - meteor.outerRadius);
-}
-
-function fill (color) {
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.closePath();
 }
 
 function processBall (frames) {
