@@ -68,11 +68,12 @@ const paddle = {
 };
 
 const particle = {
-  alpha: 0.5,
   decrease: 0.05,
+  highestAlpha: 0.8,
   highestRadius: 5,
   highestSpeedX: 5,
   highestSpeedY: 5,
+  lowestAlpha: 0.4,
   lowestRadius: 2,
   lowestSpeedX: -5,
   lowestSpeedY: -5,
@@ -231,11 +232,12 @@ function processBricks () {
       score++;
       for (let i = 0; i < particle.total; i++) {
         const c = generateRandomRgbColor();
+        const alpha = particle.lowestAlpha + Math.random() * (particle.highestAlpha - particle.lowestAlpha);
         particles.push({
           x: ball.x,
           y: ball.y,
           radius: particle.lowestRadius + Math.random() * (particle.highestRadius - particle.lowestRadius),
-          color: `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${particle.alpha})`,
+          color: `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha})`,
           speedX: particle.lowestSpeedX + Math.random() * (particle.highestSpeedX - particle.lowestSpeedX),
           speedY: particle.lowestSpeedY + Math.random() * (particle.highestSpeedY - particle.lowestSpeedY)
         });
