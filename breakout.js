@@ -213,7 +213,7 @@ function processBall (frames) {
   } else if (ball.y > canvas.height - ball.radius && ball.speedY > 0) {
     die();
   } else if (ball.y > canvas.height - paddle.height - ball.radius && ball.speedY > 0 && intersects(paddle, paddle.width, paddle.height, ball, ball.radius)) {
-    const x = (paddle.x + paddle.width / 2.0 - ball.x - ball.radius) / (paddle.width / 2.0);
+    const x = (paddle.x + paddle.width / 2 - ball.x - ball.radius) / (paddle.width / 2);
     ball.speedX = -ball.speed * Math.sin(x * ball.angle * Math.PI / 180);
     ball.speedY = -ball.speed * Math.cos(x * ball.angle * Math.PI / 180);
     touchedPaddle = true;
