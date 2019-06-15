@@ -8,6 +8,7 @@ const getTime = typeof performance === 'function' ? performance.now : Date.now;
 const FRAME_DURATION = 1000 / 58;
 let then = getTime();
 let acc = 0;
+let animation;
 const meter = new FPSMeter({
   left: canvas.width - 130 + 'px',
   top: 'auto',
@@ -159,7 +160,7 @@ function draw () {
   processParticles(frames);
   createMeteors();
   removeMeteors(frames);
-  window.requestAnimationFrame(draw);
+  animation = window.requestAnimationFrame(draw);
 }
 
 function drawCircle (c) {
@@ -329,22 +330,36 @@ function end (message) {
 }
 
 function keyDownHandler (e) {
-  if (e.keyCode === 39) {
-    paddle.speedX = paddle.speed;
-  }
-  if (e.keyCode === 37) {
-    paddle.speedX = -paddle.speed;
+  if (animation !== undefined) {
+    if (e.keyCode === 39) {
+      paddle.speedX = paddle.speed;
+    }
+    if (e.keyCode === 37) {
+      paddle.speedX = -paddle.speed;
+    }
   }
 }
 
 function keyUpHandler (e) {
-  if (e.keyCode === 39 || e.keyCode === 37) {
-    paddle.speedX = 0;
+  if (animation !== undefined) {
+    if (e.keyCode === 39 || e.keyCode === 37) {
+      paddle.speedX = 0;
+    }
+  }
+  if (e.keyCode === 80) {
+    if (animation === undefined) {
+      animation = window.requestAnimationFrame(draw);
+    } else {
+      window.cancelAnimationFrame(animation);
+      animation = undefined;
+    }
   }
 }
 
 function mouseMoveHandler (e) {
-  paddle.x = e.clientX - canvas.offsetLeft - paddle.width / 2;
+  if (animation !== undefined) {
+    paddle.x = e.clientX - canvas.offsetLeft - paddle.width / 2;
+  }
 }
 
 function resizeHandler () {

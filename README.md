@@ -9,6 +9,19 @@ Remake of the classic game with falling meteors for increased action. Bricks hav
 
 [![button](play.png)](https://berkerol.github.io/breakout/breakout.html)
 
+## Controls
+
+- With mouse
+
+  - Paddle follow mouse
+
+- With keyboard
+
+  - Goes left by pressing _LEFT_.
+  - Goes right by pressing _RIGHT_.
+
+- Pause the game by pressing _P_.
+
 ## Contribution
 
 Feel free to [contribute](https://github.com/berkerol/breakout/issues) according to the [semistandard rules](https://github.com/Flet/semistandard) and [latest ECMAScript Specification](https://www.ecma-international.org/ecma-262).
