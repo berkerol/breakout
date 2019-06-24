@@ -5,7 +5,7 @@
 [![ECMAScript](https://img.shields.io/badge/ECMAScript-latest-brightgreen.svg)](https://www.ecma-international.org/ecma-262)
 [![license](https://img.shields.io/badge/license-GNU%20GPL%20v3.0-blue.svg)](https://github.com/berkerol/breakout/blob/master/LICENSE)
 
-Remake of the classic game with falling meteors for increased action. Bricks have varying strengths (from hard to easy: red, orange, blue, green).
+Remake of the classic game with meteors. Bricks have varying strengths (from hard to easy: red, orange, blue, green).
 
 [![button](play.png)](https://berkerol.github.io/breakout/breakout.html)
 
