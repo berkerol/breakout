@@ -127,8 +127,6 @@ function draw () {
       frames++;
       acc -= FRAME_DURATION;
     }
-  } else {
-    ms = 0;
   }
   meter.tick();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -187,8 +185,8 @@ function drawRoundRect (r, width, height, arc, color) {
 }
 
 function drawMeteor (m) {
-  let x = m.x;
-  let y = m.y;
+  let x;
+  let y;
   let rot = Math.PI / 2 * 3;
   const step = Math.PI / meteor.spikes;
   ctx.moveTo(m.x, m.y - meteor.outerRadius);
