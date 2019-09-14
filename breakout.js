@@ -232,7 +232,7 @@ function processBricks () {
       lastBrick = b.n;
       b.status--;
       score++;
-      for (let i = 0; i < particle.total; i++) {
+      for (let j = 0; j < particle.total; j++) {
         const c = generateRandomRgbColor();
         const alpha = particle.lowestAlpha + Math.random() * (particle.highestAlpha - particle.lowestAlpha);
         particles.push({
