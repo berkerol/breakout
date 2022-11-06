@@ -1,6 +1,7 @@
 # Breakout
 
 [![Sonarcloud Status](https://sonarcloud.io/api/project_badges/measure?project=berkerol_breakout&metric=alert_status)](https://sonarcloud.io/dashboard?id=berkerol_breakout)
+[![CI](https://github.com/berkerol/breakout/actions/workflows/lint.yml/badge.svg?branch=master)](https://github.com/berkerol/breakout/actions/workflows/lint.yml)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](https://github.com/berkerol/breakout/issues)
 [![semistandard](https://img.shields.io/badge/code%20style-semistandard-brightgreen.svg)](https://github.com/Flet/semistandard)
 [![ECMAScript](https://img.shields.io/badge/ECMAScript-latest-brightgreen.svg)](https://www.ecma-international.org/ecma-262)
@@ -22,6 +23,10 @@ Remake of the classic game with meteors. Bricks have varying strengths (from har
   - Goes right by pressing _RIGHT_.
 
 - Pause the game by pressing _P_.
+
+## Continous Integration
+
+It is setup using GitHub Actions in `.github/workflows/lint.yml`
 
 ## Contribution
 
